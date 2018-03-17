@@ -33,7 +33,7 @@ import pkg_resources
 
 class Robot(object):
 
-    def __init__(self, fwd = 250.0, tang = 100.0, port='COM3', baud=115200):
+    def __init__(self, fwd = 100.0, tang = 50.0, port='COM4', baud=115200):
         '''
         Connects to the Create2 on the specified port at the specified baud rate.
         '''
@@ -102,6 +102,11 @@ class Robot(object):
         time.sleep(deltaT);
         self.setTurnSpeed(0);
 
+	def setFWDVel(self, newVel):
+		self.fwdVel = newVel;
+		
+	def getFWDVel(self):
+		return self.fwdVel;
     #initialize grid logic for the robot, 
     #x and y cord in cells, 
     #heading in degrees, 
@@ -177,7 +182,35 @@ class Robot(object):
                 self.changeHeading(90);
             self.gridTraverse(abs(dY));
             self.y = newY;
-        
+            
+    #Method to notify guests
+    #level specifies type of politness, lower it is the more polite        
+    def notify(self, level):
+        if(level == 0):
+            note = ('A5', 40);
+            self.playNote(note[0], note[1]);
+            time.sleep(1);
+        elif(level == 1):
+            note = ('C5', 70);
+            self.playNote(note[0], note[1]);
+            time.sleep(1);
+            og = self.tanVel
+            self.tanVel = 100.0
+            self.rotate(-15);
+            self.rotate(30);
+            self.rotate(-15);
+            self.tanVel = og;
+        else:
+            note = ('F5', 100); 
+            self.playNote(note[0], note[1]);
+            time.sleep(1.5);
+            og = self.fwdVel;
+            self.fwdVel = 200.0
+            self.gridTraverse(0.25); 
+            self.gridTraverse(-0.25);
+            self.gridTraverse(0.25); 
+            self.gridTraverse(-0.25);
+            self.fwdVel = og;  
     def getBumpers(self):
         '''
         Returns left,right bumper states as booleans.
@@ -1866,5 +1899,4 @@ class _sensorPacketDecoder(object):
         """
         return self.safe_unpack('B', byte)[0]
     
-
 

@@ -1,7 +1,7 @@
 ### Following bit written by Sebastian
 
 ## Ignore IDE generated files
-.idea/*
+*/.idea/*
 
 ## Ignore VS/C# generated files
 ## Basically copy/pasta of the gitignore from a C++ VS project so it might be broken in various ways that I won't know how to fix.

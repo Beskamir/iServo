@@ -36,6 +36,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -54,14 +55,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="src\CanvasGrid.cs" />
-    <Compile Include="src\CellData\CellContents.cs" />
-    <Compile Include="src\CellData\EmptyCell.cs" />
-    <Compile Include="src\CellData\Servo.cs" />
+    <Compile Include="src\Communication\PythonCall.cs" />
     <Compile Include="src\Logic.cs" />
-    <Compile Include="src\Support\GridCell.cs" />
-    <Compile Include="src\Support\ServoVec2.cs" />
-    <Compile Include="src\Support\PythonCall.cs" />
+    <Compile Include="src\World\RayTracer\PathDetails.cs" />
+    <Compile Include="src\World\WorldGrid.cs" />
+    <Compile Include="src\World\Entities\Entity.cs" />
+    <Compile Include="src\World\Entities\Servo.cs" />
+    <Compile Include="src\World\RayTracer\Ray.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

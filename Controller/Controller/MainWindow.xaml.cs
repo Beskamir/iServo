@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Linq;
+using System.Numerics;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,7 +15,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Controller.CellData;
+using System.Windows.Threading;
+using Controller.CanvasGrid;
 
 namespace Controller
 {
@@ -22,9 +25,8 @@ namespace Controller
     /// </summary>
     public partial class MainWindow : Window
     {
-//        Rectangle gridCells[][];
-//        private CanvasGrid _canvasGrid;
         private Logic _logic;
+        private WorldGrid _worldGrid;
         public MainWindow()
         {
             InitializeComponent();
@@ -32,12 +34,12 @@ namespace Controller
             // https://stackoverflow.com/questions/1695101/why-are-actualwidth-and-actualheight-0-0-in-this-case
             Loaded += delegate
             {
-//                _canvasGrid = new CanvasGrid(videoCanvas);
-                _logic = new Logic(new CanvasGrid(videoCanvas));
-                //canvasGrid[0][0].Fill = new SolidColorBrush(Colors.Red);
+                var currentDispatcher = Application.Current.Dispatcher;
+                _worldGrid = new WorldGrid(videoCanvas, new Vector2(8, 8), ref currentDispatcher);
+                _logic = new Logic(ref _worldGrid);
             };
-            
         }
+
 
         private void videoCanvas_MouseMove(object sender, MouseEventArgs e)
         {
@@ -46,10 +48,7 @@ namespace Controller
 
         private void videoCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            _logic.TempClick(e.GetPosition(videoCanvas));
-//            Console.WriteLine(e.GetPosition(videoCanvas));
-//            Console.WriteLine(videoCanvas.Width);
-//            Console.WriteLine(videoCanvas.ActualWidth);
+              _logic.CanvasClick(e.GetPosition(videoCanvas));
         }
 
         private void videoCanvas_MouseUp(object sender, MouseButtonEventArgs e)
@@ -59,22 +58,23 @@ namespace Controller
 
         private void OnConfrimPath(object sender, RoutedEventArgs e)
         {
-            _logic.FinalizePath();
+            _logic.ConfirmSelectedPath();
         }
 
         private void OnConnectServo0(object sender, RoutedEventArgs e)
         {
-            _logic.SelectRoomba("192.168.1.2");
+            _logic.SelectServoByName("192.168.1.2");
         }
 
         private void OnConnectServo1(object sender, RoutedEventArgs e)
         {
-            _logic.SelectRoomba("192.168.1.3");
+            _logic.SelectServoByName("192.168.1.3");
         }
 
         private void OnConnectServo2(object sender, RoutedEventArgs e)
         {
-            _logic.SelectRoomba("192.168.1.4");
+            _logic.SelectServoByName("192.168.1.4");
+
         }
     }
 }

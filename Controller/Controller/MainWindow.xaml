@@ -15,5 +15,5 @@
         <Button Content="Connect to servo 1" HorizontalAlignment="Left" Margin="0,0,0,409.8" Width="150" Height="24" VerticalAlignment="Bottom" Click="OnConnectServo1"/>
         <Button Content="Connect to servo 2" HorizontalAlignment="Left" Margin="0,0,0,380.8" Width="150" Height="24" VerticalAlignment="Bottom" Click="OnConnectServo2"/>
         <Label Content="Please make the above&#xD;&#xA;buttons nicer. This is &#xD;&#xA;just for testing!&#xD;&#xA;Ideally it's some kind&#xD;&#xA;of list element where&#xD;&#xA;you can select servos" HorizontalAlignment="Left" Margin="10,97,0,0" VerticalAlignment="Top" Height="162" Width="135"/>
-    </Grid>
+        </Grid>
 </Window>

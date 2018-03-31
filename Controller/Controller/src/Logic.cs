@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Windows;
 using System.Windows.Media;
+using System.Xaml.Schema;
 using Controller.CanvasGrid;
 using Controller.World.Entities;
 using Controller.World.RayTracer;
@@ -19,14 +21,17 @@ namespace Controller
         private string _activeServoName = "";
         private int _activeServoIndex = -1;
         private bool _activeSelected = false;
-        
+
         private List<Entity> _entities = new List<Entity>();
         private List<Servo> _servos = new List<Servo>();
-        private bool _gridLockOn = false; 
 
         private WorldGrid _worldGrid;
 
         public Thread ServoThreadVar;
+        public bool ResetLocation { get; set; } = false;
+        public bool GridLockOn { get; set; } = false;
+        public bool SetHome { get; set; } = false;
+
         /// <summary>
         /// sets up servo thread and world data
         /// </summary>
@@ -86,8 +91,15 @@ namespace Controller
         }
 
         private void DrawServo(Servo servo)
-        {   
-            _worldGrid.DrawCircleAt(servo.Position,_roombaRadius,Colors.Green);
+        {
+            if (servo.IsActive)
+            {
+                _worldGrid.DrawCircleAt(servo.Position, _roombaRadius, Colors.LightGreen);
+            }
+            else
+            {
+                _worldGrid.DrawCircleAt(servo.Position, _roombaRadius, Colors.DarkGreen);
+            }
         }
 
         /// <summary>
@@ -102,23 +114,23 @@ namespace Controller
             
             foreach (Entity entity in _entities)
             {
-                path.BlockedMain |= entity.Intersection(path.MainRay, ref path.MainNear);
-                path.BlockedSide0 |= entity.Intersection(path.SideRay0, ref path.SideNear0);
-                path.BlockedSide1 |= entity.Intersection(path.SideRay1, ref path.SideNear1);
-            }
-
-            foreach (Servo servo in _servos)
-            {
-                if (!servo.Equals(originalServo))
+                if (!entity.Equals(originalServo))
                 {
-                    path.BlockedMain |= servo.Intersection(path.MainRay, ref path.MainNear);
-                    // Console.WriteLine(path.clearMain);
-                    path.BlockedSide0 |= servo.Intersection(path.SideRay0, ref path.SideNear0);
-                    // Console.WriteLine(path.clearSide0);
-                    path.BlockedSide1 |= servo.Intersection(path.SideRay1, ref path.SideNear1);
-                    // Console.WriteLine(path.clearSide1);
+                    path.BlockedMain |= entity.Intersection(path.MainRay, ref path.MainNear);
+                    path.BlockedSide0 |= entity.Intersection(path.SideRay0, ref path.SideNear0);
+                    path.BlockedSide1 |= entity.Intersection(path.SideRay1, ref path.SideNear1);
                 }
             }
+
+//            foreach (Servo servo in _servos)
+//            {
+//                if (!servo.Equals(originalServo))
+//                {
+//                    path.BlockedMain |= servo.Intersection(path.MainRay, ref path.MainNear);
+//                    path.BlockedSide0 |= servo.Intersection(path.SideRay0, ref path.SideNear0);
+//                    path.BlockedSide1 |= servo.Intersection(path.SideRay1, ref path.SideNear1);
+//                }
+//            }
             
             //Debug
             _worldGrid.DrawCircleAt(path.Offset0,0.1f,(Colors.DarkSlateGray));
@@ -127,7 +139,7 @@ namespace Controller
 
 
             bool isBlocked = path.BlockedMain || path.BlockedSide0 || path.BlockedSide1;
-            Console.WriteLine(isBlocked);
+//            Console.WriteLine(isBlocked);
             return !isBlocked;
         }
 
@@ -143,7 +155,7 @@ namespace Controller
                 (float) newClick.X/_worldGrid.CellSize.X,
                 (float) newClick.Y/_worldGrid.CellSize.Y
             );
-            if (_gridLockOn)
+            if (GridLockOn)
             {
                 //Move clickLoc to center of grid like squares.
                 // Basically create an integer lattice out of
@@ -157,11 +169,27 @@ namespace Controller
                 {
                     CreateNewServo(clickLoc);
                 }
+                else if (ResetLocation)
+                {
+                    _servos[_activeServoIndex].ResetRealLocation(clickLoc);
+                }
+                else if (SetHome)
+                {
+                    _servos[_activeServoIndex].HomeVector2 = clickLoc;
+                }
                 else
                 {
                     // record destination points if in correct mode
                     _servos[_activeServoIndex].TempWaypoints.Add(clickLoc);
+                    _servos[_activeServoIndex].TempWaypoints.Add(clickLoc);
                     // _worldGrid.DrawCircleAt(clickLoc,_roombaRadius,Colors.Brown);
+                }
+            }
+            else if (SetHome)
+            {
+                foreach (Servo servo in _servos)
+                {
+                    servo.HomeVector2 = clickLoc;
                 }
             }
             else
@@ -169,6 +197,7 @@ namespace Controller
                 SelectServoByIntersection(clickLoc);
             }
         }
+
 
         /// <summary>
         /// place new servo at mouse location
@@ -178,6 +207,7 @@ namespace Controller
         {
             Servo newServo = new Servo(clickLoc,_roombaRadius,_activeServoName);
             _servos.Add(newServo);
+            _entities.Add(newServo);
             _activeServoIndex = _servos.Count - 1;
             _activeSelected = false;
         }
@@ -198,6 +228,7 @@ namespace Controller
                     closestDistance = distance;
                     _activeSelected = true;
                     _activeServoIndex = i;
+                    _servos[_activeServoIndex].IsActive = true;
                     _activeServoName = _servos[i].Name;
                 }
             }
@@ -216,7 +247,11 @@ namespace Controller
             {
                 if (_servos[i].Name.Equals(name))
                 {
-                    _activeServoIndex = i;
+                    _servos[i].IsActive = !_servos[i].IsActive;
+                    if (_servos[i].IsActive)
+                    {
+                        _activeServoIndex = i;
+                    }
                 }
             }
         }
@@ -230,6 +265,9 @@ namespace Controller
             if (_activeSelected && _activeServoIndex >= 0)
             {
                 _activeSelected = false;
+                _servos[_activeServoIndex].IsActive = false;
+                //Allow giving a new path to servo
+                _servos[_activeServoIndex].Waypoints.Clear();
                 foreach (Servo servo in _servos)
                 {
                     servo.AddDestinations();
@@ -241,8 +279,64 @@ namespace Controller
         {
             foreach (var tempWaypoint in servo.TempWaypoints)
             {
+                _worldGrid.DrawCircleAt(tempWaypoint, _roombaRadius / 2, Colors.MediumPurple);
+            }
+
+            foreach (var tempWaypoint in servo.Waypoints)
+            {
                 _worldGrid.DrawCircleAt(tempWaypoint,_roombaRadius/2,Colors.Purple);
-            }   
+            }
+        }
+
+        public void Notify(int notification)
+        {
+            if (_activeSelected)
+            {
+                Servo activeServo = _servos[_activeServoIndex];
+                foreach (Entity entity in _entities)
+                {
+                    bool difEntity = !entity.Equals(activeServo);
+
+                    double distance = Vector2.Distance(entity.Position, activeServo.Position);
+                    double radi = (entity.Radius + activeServo.Radius * 2);
+                    if (difEntity && distance < radi)
+                    {
+                        if (notification > 2)
+                        {
+                            notification = 2;
+                        }
+                    }
+                }
+                activeServo.Notify(notification);
+            }
+        }
+
+        public void RecallSelected()
+        {
+            _servos[_activeServoIndex].ReturnHome();
+        }
+
+        public void RecallAll()
+        {
+            foreach (Servo servo in _servos)
+            {
+                servo.ReturnHome();
+            }
+        }
+
+        public void Stop()
+        {
+            if (_activeServoIndex >= 0)
+            {
+                _servos[_activeServoIndex].Waypoints.Clear();
+            }
+            else
+            {
+                foreach (Servo servo in _servos)
+                {
+                    servo.Waypoints.Clear();
+                }
+            }
         }
     }
 }

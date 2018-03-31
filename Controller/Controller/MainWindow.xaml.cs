@@ -48,7 +48,9 @@ namespace Controller
 
         private void videoCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
-              _logic.CanvasClick(e.GetPosition(videoCanvas));
+            _logic.CanvasClick(e.GetPosition(videoCanvas));
+            SetHome.Content = _logic.SetHome ? "Setting Home" : "Set Home";
+            RestLoc.Content = _logic.ResetLocation ? "Resetting Loc" : "Reset Loc";
         }
 
         private void videoCanvas_MouseUp(object sender, MouseButtonEventArgs e)
@@ -75,6 +77,49 @@ namespace Controller
         {
             _logic.SelectServoByName("192.168.1.4");
 
+        }
+
+        private void OnRecall(object sender, RoutedEventArgs e)
+        {
+            _logic.RecallSelected();
+        }
+
+        private void OnNotify1(object sender, RoutedEventArgs e)
+        {
+            _logic.Notify(1);
+        }
+
+        private void OnNotify2(object sender, RoutedEventArgs e)
+        {
+            _logic.Notify(2);
+        }
+
+        private void OnNotify3(object sender, RoutedEventArgs e)
+        {
+            _logic.Notify(3);
+        }
+
+        private void OnResetPos(object sender, RoutedEventArgs e)
+        {
+            _logic.ResetLocation = !_logic.ResetLocation;
+            RestLoc.Content = _logic.ResetLocation ? "Resetting Loc" : "Reset Loc";
+        }
+
+        private void OnGridLock(object sender, RoutedEventArgs e)
+        {
+            _logic.GridLockOn = !_logic.GridLockOn;
+            GridLock.Content = _logic.GridLockOn ? "Grid On" : "Grid Off";
+        }
+
+        private void OnSetHome(object sender, RoutedEventArgs e)
+        {
+            _logic.SetHome = !_logic.SetHome;
+            SetHome.Content = _logic.SetHome ? "Setting Home" : "Set Home";
+        }
+
+        private void OnStop(object sender, RoutedEventArgs e)
+        {
+            _logic.Stop();
         }
     }
 }

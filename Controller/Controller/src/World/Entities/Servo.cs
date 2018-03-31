@@ -9,14 +9,23 @@ namespace Controller.World.Entities
     {
         public string Name;
         private PythonCall _pythonCall = new PythonCall();
-        public Queue<Vector2> Waypoints = new Queue<Vector2>();
-        
-        public List<Vector2> TempWaypoints = new List<Vector2>();
 
-        
+        public Queue<Vector2> Waypoints { get; set; } = new Queue<Vector2>();
+        public List<Vector2> TempWaypoints { get; set; } = new List<Vector2>();
+        public Vector2 HomeVector2 { get; set; } = new Vector2(0);
+        public bool IsActive { get; set; }
+
         public Servo(Vector2 position, float radius, string name) : base(position, radius)
         {
             Name = name;
+            ResetRealLocation(Position);
+        }
+
+        public void ResetRealLocation(Vector2 setPos)
+        {
+            Position = setPos;
+            string instructions = ":ResetLocation(" + setPos.X + "," + setPos.Y + ")";
+            _pythonCall.Send(instructions);
         }
 
         public void AddDestinations()
@@ -28,26 +37,37 @@ namespace Controller.World.Entities
             TempWaypoints = new List<Vector2>();
         }
 
-        public void MoveTo(Vector2 destination)
+        public void MoveTo(Vector2 nextEpisilon)
         {
-            string instructions = ":Name:" + Name;
-            if (Position == Waypoints.Peek())
+            string instructions = ":Name(" + Name + ")";
+
+            // Check we're overshooting our destination.
+            // Basically if vectors are pointing in the same direction everything's still alright but as soon as they're opposite we can't move forward anymore.
+            if (Vector2.Dot((Waypoints.Peek() - Position), (Waypoints.Peek() - nextEpisilon)) > 0)
             {
-                Waypoints.Dequeue();
-            }
-            else if (Vector2.Distance(Position, Waypoints.Peek()) < Radius)
-            {
-                instructions += ":Move:" + Waypoints.Peek().X + "," + Waypoints.Peek().Y;
-                _pythonCall.send(instructions);
-                Position = Waypoints.Peek();
-                
+                Position = nextEpisilon;
             }
             else
             {
-                instructions += ":Move:" + destination.X + "," + destination.Y;
-                _pythonCall.send(instructions);
-                Position = destination;
+                Position = Waypoints.Peek();
+                Waypoints.Dequeue();
             }
+
+            instructions += ":Move(" + Position.X + "," + Position.Y + ")";
+            _pythonCall.Send(instructions);
+        }
+
+        public void Notify(int notification)
+        {
+            string instruction = ":Name(" + Name + ")" + ":Notify(" + notification + ")";
+            _pythonCall.Send(instruction);
+        }
+
+        public void ReturnHome()
+        {
+            Waypoints.Clear();
+            Waypoints.Enqueue(HomeVector2);
+            TempWaypoints.Clear();
         }
     }
 }

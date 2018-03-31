@@ -1,36 +1,49 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
+using Microsoft.VisualBasic;
 
 namespace Controller.Communication
 {
     public class PythonCall
     {
-        private string _pathCompiler = @"C:\Program Files(x86)\Microsoft Visual Studio\Shared\Python36_64\python.exe";
-        private string _pathScript = @"C:\Work\Education\cpsc584-HRI\iServos\Controller\Controller\src\Communication\test.py";
-        private ProcessStartInfo pyStartInfo;
+        private readonly ProcessStartInfo _pyStartInfo;
+        private readonly Process _process = new System.Diagnostics.Process();
+        private readonly string _pyPath;
         public PythonCall()
         {
-            pyStartInfo = new ProcessStartInfo(_pathCompiler);
-
-            pyStartInfo.UseShellExecute = false;
-            pyStartInfo.RedirectStandardOutput = true;
+            _pyStartInfo = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "cmd.exe", //use cmd to run stuff
+                    UseShellExecute = false,
+                    CreateNoWindow = true, //hide the cmd window
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    RedirectStandardOutput = true, //get output
+                };
+            //change following to be the script you want to run
+            // "/c" will run the script and close the window
+            // "/k" will keep the window open after running the script
+            // might need to disable CreateNoWindow...
+            _pyPath = "/C py -3 ../../../pyScripts/HelloWorld.py";
+            //_pyPath = "/K py -3 ../../../pyScripts/HelloWorld.py";
         }
 
-        public string send(string content)
+        public string Send(string content)
         {
             string response = "";
-            pyStartInfo.Arguments = _pathScript + " " + content;
             
-//            Process pyProcess = new Process();
-//            pyProcess.StartInfo = pyStartInfo;
-//            pyProcess.Start();
-//
-//
-//            StreamReader responseReader = pyProcess.StandardOutput;
-//            response = responseReader.ReadLine();
-//
-//            pyProcess.WaitForExit();
+            //Pass in the arguments
+            _pyStartInfo.Arguments = _pyPath + " " + content;
+            _process.StartInfo = _pyStartInfo;
+            _process.Start();
+            _process.WaitForExit();
 
+            //get the output
+            StreamReader responseReader = _process.StandardOutput;
+            response = responseReader.ReadToEnd();
+            Console.WriteLine(response);
+
+            //todo: do something useful with the response
             return response;
         }
     }

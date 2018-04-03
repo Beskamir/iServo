@@ -33,7 +33,7 @@ import pkg_resources
 
 class Robot(object):
 
-    def __init__(self, fwd = 100.0, tang = 50.0, port='COM4', baud=115200):
+    def __init__(self, port='/dev/ttyUSB0', fwd = 100.0, tang = 50.0, baud=115200):
         '''
         Connects to the Create2 on the specified port at the specified baud rate.
         '''
@@ -102,11 +102,11 @@ class Robot(object):
         time.sleep(deltaT);
         self.setTurnSpeed(0);
 
-	def setFWDVel(self, newVel):
-		self.fwdVel = newVel;
-		
-	def getFWDVel(self):
-		return self.fwdVel;
+    def setFWDVel(self, newVel):
+        self.fwdVel = newVel;
+        
+    def getFWDVel(self):
+        return self.fwdVel;
     #initialize grid logic for the robot, 
     #x and y cord in cells, 
     #heading in degrees, 
@@ -195,7 +195,7 @@ class Robot(object):
             self.playNote(note[0], note[1]);
             time.sleep(1);
             og = self.tanVel
-            self.tanVel = 100.0
+            self.tanVel = 90.0
             self.rotate(-15);
             self.rotate(30);
             self.rotate(-15);
@@ -1899,4 +1899,5 @@ class _sensorPacketDecoder(object):
         """
         return self.safe_unpack('B', byte)[0]
     
+
 

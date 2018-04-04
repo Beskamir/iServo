@@ -65,17 +65,17 @@ namespace Controller
 
         private void OnConnectServo0(object sender, RoutedEventArgs e)
         {
-            _logic.SelectServoByName("192.168.1.2");
+            _logic.SelectServoByName(0);
         }
 
         private void OnConnectServo1(object sender, RoutedEventArgs e)
         {
-            _logic.SelectServoByName("192.168.1.3");
+            _logic.SelectServoByName(1);
         }
 
         private void OnConnectServo2(object sender, RoutedEventArgs e)
         {
-            _logic.SelectServoByName("192.168.1.4");
+            _logic.SelectServoByName(2);
 
         }
 

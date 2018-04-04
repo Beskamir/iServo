@@ -18,8 +18,9 @@ namespace Controller
         private float _roombaRadius = 0.5f;
         private float _moveEpisilon = 0.5f;
         
-        private string _activeServoName = "";
+        //private string _activeServoName = "";
         private int _activeServoIndex = -1;
+        private int _pendingServoID = -1;
         private bool _activeSelected = false;
 
         private List<Entity> _entities = new List<Entity>();
@@ -205,7 +206,7 @@ namespace Controller
         /// <param name="clickLoc"></param>
         private void CreateNewServo(Vector2 clickLoc)
         {
-            Servo newServo = new Servo(clickLoc,_roombaRadius,_activeServoName);
+            Servo newServo = new Servo(clickLoc,_roombaRadius,_pendingServoID);
             _servos.Add(newServo);
             _entities.Add(newServo);
             _activeServoIndex = _servos.Count - 1;
@@ -229,7 +230,8 @@ namespace Controller
                     _activeSelected = true;
                     _activeServoIndex = i;
                     _servos[_activeServoIndex].IsActive = true;
-                    _activeServoName = _servos[i].Name;
+                    _pendingServoID = _servos[i].ID;
+                    //_activeServoName = _servos[i].Name;
                 }
             }
         }
@@ -238,21 +240,18 @@ namespace Controller
         /// select servo using the list on that side of the ui
         /// </summary>
         /// <param name="name"></param>
-        public void SelectServoByName(string name)
+        public void SelectServoByName(int id)
         {
-            _activeServoName = name;
-            _activeServoIndex = -1;
-            _activeSelected = true;
-            for (int i = 0; i < _servos.Count; i++)
+            if (_activeServoIndex >= 0)
             {
-                if (_servos[i].Name.Equals(name))
-                {
-                    _servos[i].IsActive = !_servos[i].IsActive;
-                    if (_servos[i].IsActive)
-                    {
-                        _activeServoIndex = i;
-                    }
-                }
+                _servos[_activeServoIndex].IsActive = false;
+            }
+            _pendingServoID = id;
+            _activeSelected = true;
+            _activeServoIndex = id < _servos.Count ? id : -1;
+            if (_activeServoIndex >= 0)
+            {
+                _servos[_activeServoIndex].IsActive = true;
             }
         }
 

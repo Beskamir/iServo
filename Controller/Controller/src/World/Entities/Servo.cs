@@ -7,17 +7,18 @@ namespace Controller.World.Entities
 {
     public class Servo : Entity
     {
-        public string Name;
+//        public string Name;
         private PythonCall _pythonCall = new PythonCall();
+        public int ID;
 
         public Queue<Vector2> Waypoints { get; set; } = new Queue<Vector2>();
         public List<Vector2> TempWaypoints { get; set; } = new List<Vector2>();
         public Vector2 HomeVector2 { get; set; } = new Vector2(0);
         public bool IsActive { get; set; }
 
-        public Servo(Vector2 position, float radius, string name) : base(position, radius)
+        public Servo(Vector2 position, float radius, int id) : base(position, radius)
         {
-            Name = name;
+            ID = id;
             ResetRealLocation(Position);
         }
 
@@ -39,7 +40,7 @@ namespace Controller.World.Entities
 
         public void MoveTo(Vector2 nextEpisilon)
         {
-            string instructions = ":Name(" + Name + ")";
+            string instructions = ":Name(" + ID + ")";
 
             // Check we're overshooting our destination.
             // Basically if vectors are pointing in the same direction everything's still alright but as soon as they're opposite we can't move forward anymore.
@@ -59,7 +60,7 @@ namespace Controller.World.Entities
 
         public void Notify(int notification)
         {
-            string instruction = ":Name(" + Name + ")" + ":Notify(" + notification + ")";
+            string instruction = ":Name(" + ID + ")" + ":Notify(" + notification + ")";
             _pythonCall.Send(instruction);
         }
 

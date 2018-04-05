@@ -38,7 +38,7 @@ namespace Controller.World.Entities
             TempWaypoints = new List<Vector2>();
         }
 
-        public void MoveTo(Vector2 nextEpisilon)
+        public void MoveTo(Vector2 nextEpisilon, double speed)
         {
             string instructions = ":Name(" + ID + ")";
 
@@ -54,7 +54,8 @@ namespace Controller.World.Entities
                 Waypoints.Dequeue();
             }
 
-            instructions += ":Move(" + Position.X + "," + Position.Y + ")";
+            instructions += ":Move(" + Position.X + "," + Position.Y + ")" + 
+                ":Speed(" + speed + ")";
             _pythonCall.Send(instructions);
         }
 

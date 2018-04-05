@@ -7,6 +7,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Xaml.Schema;
 using Controller.CanvasGrid;
 using Controller.World.Entities;
@@ -18,6 +19,7 @@ namespace Controller
     {
         private float _roombaRadius = 0.5f;
         private float _moveEpisilon = 0.5f;
+        private float _servoPersonDistance = 2.0f;
         
         //private string _activeServoName = "";
         private int _activeServoIndex = -1;
@@ -93,7 +95,19 @@ namespace Controller
                     if (CheckIfClear(servo, ref pathDetails))
                     {
                         //if clear move servo by some episilon
-                        servo.MoveTo(pathDetails.MainRay.GetHit(_moveEpisilon));
+                        //check if near humans:
+                        bool isClose = false;
+                        for (int i = 0; i < _people.Count; i++)
+                        {
+                            float distance = Vector2.Distance(servo.Position, _people[i].Position);
+                            if (distance < _people[i].Radius + _servoPersonDistance)
+                            {
+                                isClose = true;
+                            }
+                        }
+
+                        double speed = isClose ? 0.5 : 1;
+                        servo.MoveTo(pathDetails.MainRay.GetHit(_moveEpisilon), speed);
                     }
                     else
                     {

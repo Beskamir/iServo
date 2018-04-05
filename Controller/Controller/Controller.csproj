@@ -57,6 +57,7 @@
     </ApplicationDefinition>
     <Compile Include="src\Communication\PythonCall.cs" />
     <Compile Include="src\Logic.cs" />
+    <Compile Include="src\World\Entities\Person.cs" />
     <Compile Include="src\World\RayTracer\PathDetails.cs" />
     <Compile Include="src\World\WorldGrid.cs" />
     <Compile Include="src\World\Entities\Entity.cs" />

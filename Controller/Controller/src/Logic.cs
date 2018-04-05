@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Xaml.Schema;
 using Controller.CanvasGrid;
@@ -25,6 +26,7 @@ namespace Controller
 
         private List<Entity> _entities = new List<Entity>();
         private List<Servo> _servos = new List<Servo>();
+        private List<Person> _people = new List<Person>();
 
         private WorldGrid _worldGrid;
 
@@ -32,6 +34,8 @@ namespace Controller
         public bool ResetLocation { get; set; } = false;
         public bool GridLockOn { get; set; } = false;
         public bool SetHome { get; set; } = false;
+        public bool AddPerson { get; set; } = false;
+        public bool RemovePerson { get; set; } = false;
 
         /// <summary>
         /// sets up servo thread and world data
@@ -54,8 +58,17 @@ namespace Controller
             while (true)
             {
                 _worldGrid.DrawGrid();
+                DrawPeople();
                 CheckServos();
                 Thread.Sleep(500);
+            }
+        }
+
+        private void DrawPeople()
+        {
+            foreach (Person person in _people)
+            {
+                _worldGrid.DrawCircleAt(person.Position, _roombaRadius, Colors.Black);
             }
         }
 
@@ -93,14 +106,8 @@ namespace Controller
 
         private void DrawServo(Servo servo)
         {
-            if (servo.IsActive)
-            {
-                _worldGrid.DrawCircleAt(servo.Position, _roombaRadius, Colors.LightGreen);
-            }
-            else
-            {
-                _worldGrid.DrawCircleAt(servo.Position, _roombaRadius, Colors.DarkGreen);
-            }
+            _worldGrid.DrawCircleAt(servo.Position, _roombaRadius,
+                servo.IsActive ? Colors.LightGreen : Colors.DarkGreen);
         }
 
         /// <summary>
@@ -123,15 +130,12 @@ namespace Controller
                 }
             }
 
-//            foreach (Servo servo in _servos)
-//            {
-//                if (!servo.Equals(originalServo))
-//                {
-//                    path.BlockedMain |= servo.Intersection(path.MainRay, ref path.MainNear);
-//                    path.BlockedSide0 |= servo.Intersection(path.SideRay0, ref path.SideNear0);
-//                    path.BlockedSide1 |= servo.Intersection(path.SideRay1, ref path.SideNear1);
-//                }
-//            }
+            foreach (Person person in _people)
+            {
+                path.BlockedMain |= person.Intersection(path.MainRay, ref path.MainNear);
+                path.BlockedSide0 |= person.Intersection(path.SideRay0, ref path.SideNear0);
+                path.BlockedSide1 |= person.Intersection(path.SideRay1, ref path.SideNear1);
+            }
             
             //Debug
             _worldGrid.DrawCircleAt(path.Offset0,0.1f,(Colors.DarkSlateGray));
@@ -140,7 +144,6 @@ namespace Controller
 
 
             bool isBlocked = path.BlockedMain || path.BlockedSide0 || path.BlockedSide1;
-//            Console.WriteLine(isBlocked);
             return !isBlocked;
         }
 
@@ -164,38 +167,73 @@ namespace Controller
                 clickLoc.X = (float)((int) clickLoc.X + 0.5);
                 clickLoc.Y = (float)((int) clickLoc.Y + 0.5);
             }
-            if (_activeSelected)
+
+            if (AddPerson)
             {
-                if (_activeServoIndex == -1)
-                {
-                    CreateNewServo(clickLoc);
-                }
-                else if (ResetLocation)
-                {
-                    _servos[_activeServoIndex].ResetRealLocation(clickLoc);
-                }
-                else if (SetHome)
-                {
-                    _servos[_activeServoIndex].HomeVector2 = clickLoc;
-                }
-                else
-                {
-                    // record destination points if in correct mode
-                    _servos[_activeServoIndex].TempWaypoints.Add(clickLoc);
-                    _servos[_activeServoIndex].TempWaypoints.Add(clickLoc);
-                    // _worldGrid.DrawCircleAt(clickLoc,_roombaRadius,Colors.Brown);
-                }
+                Person person = new Person(clickLoc,_roombaRadius);
+                _people.Add(person);
             }
-            else if (SetHome)
+            else if (RemovePerson)
             {
-                foreach (Servo servo in _servos)
-                {
-                    servo.HomeVector2 = clickLoc;
-                }
+                RemovePersonByIntersection(clickLoc);
             }
             else
             {
-                SelectServoByIntersection(clickLoc);
+                if (_activeSelected)
+                {
+                    if (_activeServoIndex == -1)
+                    {
+                        CreateNewServo(clickLoc);
+                    }
+                    else if (ResetLocation)
+                    {
+                        _servos[_activeServoIndex].ResetRealLocation(clickLoc);
+                    }
+                    else if (SetHome)
+                    {
+                        _servos[_activeServoIndex].HomeVector2 = clickLoc;
+                    }
+                    else
+                    {
+                        // record destination points if in correct mode
+                        _servos[_activeServoIndex].TempWaypoints.Add(clickLoc);
+                        _servos[_activeServoIndex].TempWaypoints.Add(clickLoc);
+                        // _worldGrid.DrawCircleAt(clickLoc,_roombaRadius,Colors.Brown);
+                    }
+                }
+                else if (SetHome)
+                {
+                    foreach (Servo servo in _servos)
+                    {
+                        servo.HomeVector2 = clickLoc;
+                    }
+                }
+                else
+                {
+                    SelectServoByIntersection(clickLoc);
+                } 
+            }
+        }
+
+        private void RemovePersonByIntersection(Vector2 clickLoc)
+        {
+            //check for circle-point intersection to select roombas
+            float closestDistance = float.MaxValue;
+            int j = -1;
+            
+            for (int i = 0; i < _people.Count; i++)
+            {
+                float distance = Vector2.Distance(clickLoc, _people[i].Position);
+                if (distance < _people[i].Radius && distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    j = i;
+                }
+            }
+
+            if (j >= 0)
+            {
+                _people.RemoveAt(j);
             }
         }
 
@@ -244,6 +282,7 @@ namespace Controller
         {
             if (_activeServoIndex >= 0)
             {
+                //remove ui selected coloring
                 _servos[_activeServoIndex].IsActive = false;
             }
             _pendingServoID = id;
@@ -251,6 +290,7 @@ namespace Controller
             _activeServoIndex = id < _servos.Count ? id : -1;
             if (_activeServoIndex >= 0)
             {
+                //enable ui selected coloring
                 _servos[_activeServoIndex].IsActive = true;
             }
         }

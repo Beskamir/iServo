@@ -76,7 +76,6 @@ namespace Controller
         private void OnConnectServo2(object sender, RoutedEventArgs e)
         {
             _logic.SelectServoByName(2);
-
         }
 
         private void OnRecall(object sender, RoutedEventArgs e)
@@ -120,6 +119,32 @@ namespace Controller
         private void OnStop(object sender, RoutedEventArgs e)
         {
             _logic.Stop();
+        }
+
+        /// <summary>
+        /// toggle boolean to add a person on the grid
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnAddPerson(object sender, RoutedEventArgs e)
+        {
+            _logic.AddPerson = !_logic.AddPerson;
+            _logic.RemovePerson = false;
+            RemovePerson.Content = _logic.RemovePerson ? "Removing Person" : "Remove Person";
+            AddPerson.Content = _logic.AddPerson ? "Adding Person" : "Add person";
+        }
+
+        /// <summary>
+        /// Toggle boolean to remove a person from the grid
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnRemovePerson(object sender, RoutedEventArgs e)
+        {
+            _logic.RemovePerson = !_logic.RemovePerson;
+            _logic.AddPerson = false;
+            AddPerson.Content = _logic.AddPerson ? "Adding Person" : "Add person";
+            RemovePerson.Content = _logic.RemovePerson ? "Removing Person" : "Remove Person";
         }
     }
 }

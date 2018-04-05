@@ -14,7 +14,6 @@
         <Button Content="Connect to servo 0" HorizontalAlignment="Left" Margin="0,0,0,438.8" Width="195" Height="24" VerticalAlignment="Bottom" Click="OnConnectServo0" />
         <Button Content="Connect to servo 1" HorizontalAlignment="Left" Margin="0,0,0,409.8" Width="195" Height="24" VerticalAlignment="Bottom" Click="OnConnectServo1"/>
         <Button Content="Connect to servo 2" HorizontalAlignment="Left" Margin="0,0,0,380.8" Width="195" Height="24" VerticalAlignment="Bottom" Click="OnConnectServo2"/>
-        <Label Content="Please make the above&#xD;&#xA;buttons nicer. This is &#xD;&#xA;just for testing!&#xD;&#xA;Ideally it's some kind&#xD;&#xA;of list element where&#xD;&#xA;you can select servos" HorizontalAlignment="Left" Margin="10,97,0,0" VerticalAlignment="Top" Height="162" Width="185"/>
         <Button Content="Recall" HorizontalAlignment="Left" Margin="793,395,0,0" VerticalAlignment="Top" Width="92" Click="OnRecall" Height="20"/>
         <Button Content="Notify 1" HorizontalAlignment="Left" Margin="701,396,0,0" VerticalAlignment="Top" Width="92" Click="OnNotify1" Height="19"/>
         <Button Content="Notify 2" HorizontalAlignment="Left" Margin="701,415,0,0" VerticalAlignment="Top" Width="92" Click="OnNotify2" Height="19"/>
@@ -23,5 +22,7 @@
         <Button Name = "GridLock" Content="Grid Off" HorizontalAlignment="Left" Margin="793,434,0,0" VerticalAlignment="Top" Width="92" Click="OnGridLock" Height="19"/>
         <Button Name="SetHome" Content="Set Home" HorizontalAlignment="Left" Margin="793,375,0,0" VerticalAlignment="Top" Width="92" Click="OnSetHome" Height="20"/>
         <Button x:Name="SetHome_Copy" Content="Stop" HorizontalAlignment="Left" Margin="793,355,0,0" VerticalAlignment="Top" Width="92" Click="OnStop" Height="20"/>
+        <Button x:Name ="AddPerson" Content="Add person" HorizontalAlignment="Left" Margin="0,0,0,274" Width="195" Height="24" VerticalAlignment="Bottom" Click="OnAddPerson" />
+        <Button x:Name ="RemovePerson" Content="Remove Person" HorizontalAlignment="Left" Margin="0,0,0,245" Width="195" Height="24" VerticalAlignment="Bottom" Click="OnRemovePerson"/>
     </Grid>
 </Window>

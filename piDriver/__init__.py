@@ -200,7 +200,7 @@ class Robot(object):
             self.rotate(30);
             self.rotate(-15);
             self.tanVel = og;
-        else:
+        elif(level == 2):
             note = ('F5', 100); 
             self.playNote(note[0], note[1]);
             time.sleep(1.5);
@@ -210,7 +210,15 @@ class Robot(object):
             self.gridTraverse(-0.25);
             self.gridTraverse(0.25); 
             self.gridTraverse(-0.25);
-            self.fwdVel = og;  
+            self.fwdVel = og;
+        elif(level == 3):
+            note = ('C5', 40);
+            self.playNote(note[0], note[1]);
+            time.sleep(1);
+            og = self.fwdVel;
+            self.fwdVel = 55;
+            self.gridTraverse(-0.5);
+            self.fwdVel = og;
     def getBumpers(self):
         '''
         Returns left,right bumper states as booleans.

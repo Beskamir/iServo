@@ -25,7 +25,7 @@ namespace Controller.World.Entities
         public void ResetRealLocation(Vector2 setPos)
         {
             Position = setPos;
-            string instructions = ":ResetLocation(" + setPos.X + "," + setPos.Y + ")";
+            string instructions = ":Name("+ID + ")" +":ResetLocation(" + setPos.X + "," + setPos.Y + ")";
             _pythonCall.Send(instructions);
         }
 

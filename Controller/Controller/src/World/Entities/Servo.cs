@@ -25,7 +25,7 @@ namespace Controller.World.Entities
         public void ResetRealLocation(Vector2 setPos)
         {
             Position = setPos;
-            string instructions = ":Name("+ID + ")" +":ResetLocation(" + setPos.X + "," + setPos.Y + ")";
+            string instructions = ID + ":" +"Reset," +setPos.X + "," + setPos.Y;
             _pythonCall.Send(instructions);
         }
 
@@ -40,7 +40,7 @@ namespace Controller.World.Entities
 
         public void MoveTo(Vector2 nextEpisilon, double speed)
         {
-            string instructions = ":Name(" + ID + ")";
+            string instructions = ID + ":";
 
             // Check we're overshooting our destination.
             // Basically if vectors are pointing in the same direction everything's still alright but as soon as they're opposite we can't move forward anymore.
@@ -54,14 +54,14 @@ namespace Controller.World.Entities
                 Waypoints.Dequeue();
             }
 
-            instructions += ":Move(" + Position.X + "," + Position.Y + ")" + 
-                ":Speed(" + speed + ")";
+            instructions += "Move," + Position.X + "," + Position.Y + "," + 
+                 + speed;
             _pythonCall.Send(instructions);
         }
 
         public void Notify(int notification)
         {
-            string instruction = ":Name(" + ID + ")" + ":Notify(" + notification + ")";
+            string instruction = ID + ":" + "Notify," + notification;
             _pythonCall.Send(instruction);
         }
 

@@ -218,7 +218,7 @@ class Robot(object):
             og = self.fwdVel;
             self.fwdVel = 55;
             self.gridTraverse(-0.5);
-            backHead = ((self.heading + 180) % 360) * (180/math.pi);
+            backHead = ((self.heading + 180) % 360) * (math.pi/180);
             deltaX = 0.5*math.cos(backHead);
             deltaY = 0.5*math.sin(backHead);
             self.x = self.x + deltaX;

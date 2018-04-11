@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Windows.Controls;
 using Microsoft.VisualBasic;
 
 namespace Controller.Communication
@@ -24,14 +25,14 @@ namespace Controller.Communication
             // "/c" will run the script and close the window
             // "/k" will keep the window open after running the script
             // might need to disable CreateNoWindow...
-            _pyPath = "/C py -3 ../../../pyScripts/HelloWorld.py";
+            _pyPath = "/C py -3 ../../../pyScripts/iServoController.py";
             //_pyPath = "/K py -3 ../../../pyScripts/HelloWorld.py";
         }
 
         public string Send(string content)
         {
             string response = "";
-            
+            Console.WriteLine(content);
             //Pass in the arguments
             _pyStartInfo.Arguments = _pyPath + " " + content;
             _process.StartInfo = _pyStartInfo;
@@ -43,7 +44,13 @@ namespace Controller.Communication
             response = responseReader.ReadToEnd();
             Console.WriteLine(response);
 
-            //todo: do something useful with the response
+            int counter = 0;
+            while ( counter < 2000)
+            {
+                counter++;
+            }
+
+            //do something useful with the response
             return response;
         }
     }

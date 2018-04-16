@@ -146,5 +146,10 @@ namespace Controller
             AddPerson.Content = _logic.AddPerson ? "Adding Person" : "Add person";
             RemovePerson.Content = _logic.RemovePerson ? "Removing Person" : "Remove Person";
         }
+
+        private void OnDeescalate(object sender, RoutedEventArgs e)
+        {
+            _logic.Notify(4);
+        }
     }
 }

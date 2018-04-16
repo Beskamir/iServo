@@ -25,7 +25,7 @@ namespace Controller.World.Entities
         public void ResetRealLocation(Vector2 setPos)
         {
             Position = setPos;
-            string instructions = (ID + 1) + " " +"I," +setPos.X + "," + setPos.Y;
+            string instructions = (ID + 1) + " " +"I," + Math.Round(setPos.X, 2) + "," + Math.Round(setPos.Y, 2);
             _pythonCall.Send(instructions);
         }
 
@@ -54,7 +54,7 @@ namespace Controller.World.Entities
                 Waypoints.Dequeue();
             }
 
-            instructions += "M," + Position.X + "," + Position.Y + "," + 
+            instructions += "M," + Math.Round(Position.X, 2) + "," + Math.Round(Position.Y, 2) + "," + 
                  + speed;
             _pythonCall.Send(instructions);
         }

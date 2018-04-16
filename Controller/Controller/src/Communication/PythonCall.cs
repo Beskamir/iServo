@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Windows.Controls;
 using Microsoft.VisualBasic;
 
@@ -11,6 +12,8 @@ namespace Controller.Communication
         private readonly ProcessStartInfo _pyStartInfo;
         private readonly Process _process = new System.Diagnostics.Process();
         private readonly string _pyPath;
+        private string _command = "";
+        private Thread _sendTread;
         public PythonCall()
         {
             _pyStartInfo = new System.Diagnostics.ProcessStartInfo
@@ -31,10 +34,32 @@ namespace Controller.Communication
 
         public string Send(string content)
         {
+            _command = content;
+//            Console.WriteLine("command: " + _command);
+            _sendTread = new Thread(SendingThread);
+            _sendTread.SetApartmentState(ApartmentState.MTA);
+            _sendTread.Start();
+            
             string response = "";
-            Console.WriteLine(content);
+            
+
+//            int counter = 0;
+//            while ( counter < 2000)
+//            {
+//                counter++;
+//            }
+
+            //do something useful with the response
+            return response;
+        }
+
+        public void SendingThread()
+        {
+            string response = "";
+
+            Console.WriteLine("Command Sent: " + _command);
             //Pass in the arguments
-            _pyStartInfo.Arguments = _pyPath + " " + content;
+            _pyStartInfo.Arguments = _pyPath + " " + _command;
             _process.StartInfo = _pyStartInfo;
             _process.Start();
             _process.WaitForExit();
@@ -42,16 +67,9 @@ namespace Controller.Communication
             //get the output
             StreamReader responseReader = _process.StandardOutput;
             response = responseReader.ReadToEnd();
-            Console.WriteLine(response);
-
-            int counter = 0;
-            while ( counter < 2000)
-            {
-                counter++;
-            }
-
-            //do something useful with the response
-            return response;
+            Console.WriteLine(response);   
+            
+//            _sendTread.Abort();
         }
     }
 }
